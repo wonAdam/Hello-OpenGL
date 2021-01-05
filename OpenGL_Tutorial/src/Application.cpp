@@ -6,6 +6,26 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+#define ASSERT(x) if(!x) __debugbreak(); 
+#define GLCall(x) GLClearError();\
+    x;\
+    ASSERT(GLLogCall(#x, __FILE__, __LINE__))
+
+static void GLClearError()
+{
+    while( glGetError() != GL_NO_ERROR );
+}
+
+static bool GLLogCall(const char* function, const char* file, int line)
+{
+    while (GLenum error = glGetError())
+    {
+        std::cout << "[OpenGL Error] ( " << error << " ) " << function << " " << file << std::endl;
+        return false;
+    }
+    return true;
+}
+
 struct ShaderProgramSource
 {
     std::string VertexSource;
@@ -104,7 +124,7 @@ int main(void)
         return -1;
     }
     /* Make the window's context current */
-    glfwMakeContextCurrent(window);
+    GLCall(glfwMakeContextCurrent(window));
 
 
     /* GLEW stuffs */
@@ -148,7 +168,6 @@ int main(void)
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * 6, indices, GL_STATIC_DRAW);
 
 
-
     ShaderProgramSource source = ParseShader("res/shaders/basic.shader");
 
     std::cout << "VERTEX" << std::endl;
@@ -160,8 +179,6 @@ int main(void)
     glUseProgram(shaderProgram);
 
 
-
-
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
@@ -171,7 +188,7 @@ int main(void)
         // // draw call
         //glDrawArrays(GL_TRIANGLES, 0, 4);
         //glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+        GLCall(glDrawElements(GL_TRIANGLES, 6, GL_INT, nullptr));
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);

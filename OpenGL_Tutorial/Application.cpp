@@ -35,11 +35,29 @@ int main(void)
     // print GL version
     std::cout << glGetString(GL_VERSION) << std::endl;
 
+
+    // Give a data to OpenGL
+    float positions[6] = {
+        -0.5f,  -0.5f,
+        0.0f,   0.5f,
+        0.5f,   -0.5f
+    };
+    
+    unsigned int buffer;
+    glGenBuffers(1, &buffer);
+    glBindBuffer(GL_ARRAY_BUFFER, buffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6, positions, GL_STATIC_DRAW);
+
+
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
         /* Render here */
         glClear(GL_COLOR_BUFFER_BIT);
+
+        // // draw call
+        //glDrawArrays(GL_TRIANGLES, 0, 3);
+        //glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);

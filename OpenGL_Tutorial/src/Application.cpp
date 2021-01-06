@@ -64,14 +64,13 @@ int main(void)
             2,  3,  0
         };
 
-        VertexArray va;
-        VertexBuffer vb(positions, 4 * 2 * sizeof(float));
-
+        IndexBuffer ib(indices, 6); // glGenBuffers glBindBuffer glBufferData
         VertexBufferLayout layout;
         layout.Push<float>(2);
-        va.AddBuffer(vb, layout);
+        VertexBuffer vb(positions, 4 * 2 * sizeof(float)); // glGenBuffers glBindBuffer glBufferData
 
-        IndexBuffer ib(indices, 6);
+        VertexArray va;
+        va.AddBuffer(vb, ib, layout); // glEnableVertexAttribArray glVertexAttribPointer
 
         Shader shader("res/shaders/basic.shader");
         shader.Bind();
@@ -95,9 +94,8 @@ int main(void)
             shader.Bind();
             shader.SetUniform4f("u_Color", r, 1.f, 0.f, 1.f);
 
+            // Should Bind Array for DrawCall
             va.Bind();
-            ib.Bind();
-            vb.Bind();
 
             // draw call
             GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));

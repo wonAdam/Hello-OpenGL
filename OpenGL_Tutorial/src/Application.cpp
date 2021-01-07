@@ -16,6 +16,8 @@
 #include "Shader.h"
 #include "Texture.h"
 
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
 
 int main(void)
 {
@@ -90,12 +92,17 @@ int main(void)
         va.AddBuffer(vb, layout);
         va2.AddBuffer(vb2, layout);
 
+        glm::mat4 proj = glm::ortho(-2.0f, 2.0f, -1.5f, 1.5f, -1.0f, 1.0f);
+
         Shader shader("res/shaders/basic.shader");
         shader.Bind();
         shader.SetUniform4f("u_Color", 1.f, 0.f, 0.f, 0.3f);
+        shader.SetUniformMat4("u_MVP", proj);
         Shader shader2("res/shaders/basic.shader");
         shader2.Bind();
         shader2.SetUniform4f("u_Color", 0.f, 0.f, 1.f, 0.3f);
+        shader2.SetUniformMat4("u_MVP", proj);
+
 
         /*Texture texture("res/textures/javatwo.jpg");
         texture.Bind();

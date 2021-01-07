@@ -98,23 +98,38 @@ int main(void)
         shader.Bind();
         shader.SetUniform4f("u_Color", 1.f, 0.f, 0.f, 0.3f);
         shader.SetUniformMat4("u_MVP", proj);
+        shader.Unbind();
+
         Shader shader2("res/shaders/basic.shader");
         shader2.Bind();
         shader2.SetUniform4f("u_Color", 0.f, 0.f, 1.f, 0.3f);
         shader2.SetUniformMat4("u_MVP", proj);
+        shader2.Unbind();
 
 
-        /*Texture texture("res/textures/javatwo.jpg");
+        Texture texture("res/textures/javatwo.jpg");
         texture.Bind();
         shader.Bind();
-        shader.SetUniform1i("u_Texture", 0);*/
+        shader.SetUniform1i("u_Texture", 0);
+        texture.Unbind();
 
-        /*va.Unbind();
+
+        Texture texture2("res/textures/Gunter_in_Sign.png.png");
+        texture2.Bind(1);
+        shader2.Bind();
+        shader2.SetUniform1i("u_Texture", 1);
+        texture2.Unbind();
+
+
+        va.Unbind();
         vb.Unbind();
+        shader.Unbind();
+        texture.Unbind();
+        va2.Unbind();
         vb2.Unbind();
+        shader2.Unbind();
+        texture2.Unbind();
         ib.Unbind();
-        shader.Unbind();*/
-        //texture.Unbind();
 
         Renderer renderer;
         /*float r = 0.0f;
@@ -125,10 +140,13 @@ int main(void)
             /* Render here */
             renderer.Clear();
 
-            //texture.Bind();
-
+            texture.Bind();
             renderer.Draw(va, ib, shader);
+            texture.Unbind();
+
+            texture2.Bind();
             renderer.Draw(va2, ib, shader2);
+            texture2.Unbind();
 
             /*if (r > 1.0f)
             {

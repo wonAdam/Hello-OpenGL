@@ -8,7 +8,6 @@
 #include "Renderer.h"
 
 
-
 Shader::Shader(const std::string& filepath)
 	: m_FilePath(filepath), m_RendererID(0)
 {
@@ -47,12 +46,12 @@ unsigned int Shader::CreateShader(const std::string& vertexShader, const std::st
     return program;
 }
 
-void Shader::SetUniform4f(const std::string& name, float v0, float v1, float v2, float f3)
+void Shader::SetUniform4f(const std::string& name, float v0, float v1, float v2, float f3) const
 {
     GLCall(glUniform4f(GetUniformLocation(name), v0, v1, v2, f3));
 }
 
-unsigned int Shader::GetUniformLocation(const std::string& name)
+unsigned int Shader::GetUniformLocation(const std::string& name) const
 {
     if (m_UniformLocationCache.find(name) != m_UniformLocationCache.end())
         return m_UniformLocationCache[name];

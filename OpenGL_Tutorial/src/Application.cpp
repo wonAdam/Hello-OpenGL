@@ -1,11 +1,15 @@
 #define GLEW_STATIC
+
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <sstream>
+
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+
 #include "Renderer.h"
+#include "VertexBufferLayout.h"
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
 #include "VertexArray.h"
@@ -23,7 +27,6 @@ int main(void)
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    //glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     /* Create a windowed mode window and its OpenGL context */
@@ -64,41 +67,33 @@ int main(void)
             2,  3,  0
         };
 
+        VertexBuffer vb(positions, 4 * 2 * sizeof(float)); // glGenBuffers glBindBuffer glBufferData
         IndexBuffer ib(indices, 6); // glGenBuffers glBindBuffer glBufferData
         VertexBufferLayout layout;
         layout.Push<float>(2);
-        VertexBuffer vb(positions, 4 * 2 * sizeof(float)); // glGenBuffers glBindBuffer glBufferData
+
 
         VertexArray va;
-        va.AddBuffer(vb, ib, layout); // glEnableVertexAttribArray glVertexAttribPointer
+        vb.Unbind();
+        ib.Unbind();
+        
+        va.AddBuffer(vb, layout); // glEnableVertexAttribArray glVertexAttribPointer
+
 
         Shader shader("res/shaders/basic.shader");
         shader.Bind();
         shader.SetUniform4f("u_Color", 1.f, 1.f, 0.f, 1.f);
 
-        // unbound everything
-        va.Unbind();
-        vb.Unbind();
-        ib.Unbind();
-        shader.Unbind();
-
+        Renderer renderer;
         float r = 0.0f;
         float increment = 0.05f;
         /* Loop until the user closes the window */
         while (!glfwWindowShouldClose(window))
         {
             /* Render here */
-            glClear(GL_COLOR_BUFFER_BIT);
+            renderer.Clear();
 
-            // bind shader
-            shader.Bind();
-            shader.SetUniform4f("u_Color", r, 1.f, 0.f, 1.f);
-
-            // Should Bind Array for DrawCall
-            va.Bind();
-
-            // draw call
-            GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
+            renderer.Draw(va, ib, shader);
 
             if (r > 1.0f)
             {

@@ -63,6 +63,13 @@ int main(void)
             -0.5f,  0.5f,   0.0f,   1.0f // 3
         };
 
+        float positions2[] = {
+            -0.25f,  -0.25f,  0.0f,   0.0f, // 0
+            0.75f,   -0.25f,  1.0f,   0.0f, // 1
+            0.75f,   0.75f,   1.0f,   1.0f, // 2
+            -0.25f,  0.75f,   0.0f,   1.0f // 3
+        };
+
         unsigned int indices[] = {
             0,  1,  2,
             2,  3,  0
@@ -72,29 +79,35 @@ int main(void)
         GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 
         VertexArray va;
+        VertexArray va2;
         VertexBuffer vb(positions, 4 * 4 * sizeof(float));
+        VertexBuffer vb2(positions2, 4 * 4 * sizeof(float));
         IndexBuffer ib(indices, 6);
         VertexBufferLayout layout;
 
         layout.Push<float>(2); // for vertex coordinate
         layout.Push<float>(2); // for texture
         va.AddBuffer(vb, layout);
-
+        va2.AddBuffer(vb2, layout);
 
         Shader shader("res/shaders/basic.shader");
         shader.Bind();
-        shader.SetUniform4f("u_Color", 1.f, 1.f, 1.f, 1.f);
+        shader.SetUniform4f("u_Color", 1.f, 0.f, 0.f, 0.3f);
+        Shader shader2("res/shaders/basic.shader");
+        shader2.Bind();
+        shader2.SetUniform4f("u_Color", 0.f, 0.f, 1.f, 0.3f);
 
-        Texture texture("res/textures/javatwo.jpg");
+        /*Texture texture("res/textures/javatwo.jpg");
         texture.Bind();
         shader.Bind();
-        shader.SetUniform1i("u_Texture", 0);
+        shader.SetUniform1i("u_Texture", 0);*/
 
-        va.Unbind();
+        /*va.Unbind();
         vb.Unbind();
+        vb2.Unbind();
         ib.Unbind();
-        shader.Unbind();
-        texture.Unbind();
+        shader.Unbind();*/
+        //texture.Unbind();
 
         Renderer renderer;
         /*float r = 0.0f;
@@ -105,9 +118,10 @@ int main(void)
             /* Render here */
             renderer.Clear();
 
-            texture.Bind();
+            //texture.Bind();
 
             renderer.Draw(va, ib, shader);
+            renderer.Draw(va2, ib, shader2);
 
             /*if (r > 1.0f)
             {

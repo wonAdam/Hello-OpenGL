@@ -14,6 +14,7 @@
 #include "IndexBuffer.h"
 #include "VertexArray.h"
 #include "Shader.h"
+#include "Texture.h"
 
 
 int main(void)
@@ -56,10 +57,10 @@ int main(void)
     {
         // Give a data to OpenGL
         float positions[] = {
-            -0.5f,  -0.5f,
-            0.5f,   -0.5f,
-            0.5f,   0.5f,
-            -0.5f,  0.5f
+            -0.5f,  -0.5f,  0.0f,   0.0f, // 0
+            0.5f,   -0.5f,  1.0f,   0.0f, // 1
+            0.5f,   0.5f,   1.0f,   1.0f, // 2
+            -0.5f,  0.5f,   0.0f,   1.0f // 3
         };
 
         unsigned int indices[] = {
@@ -67,35 +68,48 @@ int main(void)
             2,  3,  0
         };
 
-        VertexBuffer vb(positions, 4 * 2 * sizeof(float)); // glGenBuffers glBindBuffer glBufferData
-        IndexBuffer ib(indices, 6); // glGenBuffers glBindBuffer glBufferData
-        VertexBufferLayout layout;
-        layout.Push<float>(2);
-
+        GLCall(glEnable(GL_BLEND));
+        GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 
         VertexArray va;
-        vb.Unbind();
-        ib.Unbind();
-        
-        va.AddBuffer(vb, layout); // glEnableVertexAttribArray glVertexAttribPointer
+        VertexBuffer vb(positions, 4 * 4 * sizeof(float));
+        IndexBuffer ib(indices, 6);
+        VertexBufferLayout layout;
+
+        layout.Push<float>(2); // for vertex coordinate
+        layout.Push<float>(2); // for texture
+        va.AddBuffer(vb, layout);
 
 
         Shader shader("res/shaders/basic.shader");
         shader.Bind();
-        shader.SetUniform4f("u_Color", 1.f, 1.f, 0.f, 1.f);
+        shader.SetUniform4f("u_Color", 1.f, 1.f, 1.f, 1.f);
+
+        Texture texture("res/textures/javatwo.jpg");
+        texture.Bind();
+        shader.Bind();
+        shader.SetUniform1i("u_Texture", 0);
+
+        va.Unbind();
+        vb.Unbind();
+        ib.Unbind();
+        shader.Unbind();
+        texture.Unbind();
 
         Renderer renderer;
-        float r = 0.0f;
-        float increment = 0.05f;
+        /*float r = 0.0f;
+        float increment = 0.05f;*/
         /* Loop until the user closes the window */
         while (!glfwWindowShouldClose(window))
         {
             /* Render here */
             renderer.Clear();
 
+            texture.Bind();
+
             renderer.Draw(va, ib, shader);
 
-            if (r > 1.0f)
+            /*if (r > 1.0f)
             {
                 increment = -0.05f;
             }
@@ -103,7 +117,7 @@ int main(void)
             {
                 increment = 0.05f;
             }
-            r += increment;
+            r += increment;*/
 
 
             /* Swap front and back buffers */

@@ -107,19 +107,19 @@ int main(void)
         shader2.Unbind();
 
 
-        Texture texture("res/textures/javatwo.jpg");
-        texture.Bind();
+        Texture texture("res/textures/Gunter_in_Sign.png");
+        texture.Bind(0); // glActiveTexture glBindTexture
         shader.Bind();
         shader.SetUniform1i("u_Texture", 0);
-        texture.Unbind();
+        texture.Unbind(); // glActiveTexture glBindTexture
+        shader.Unbind();
 
-
-        Texture texture2("res/textures/Gunter_in_Sign.png.png");
-        texture2.Bind(1);
+        Texture texture2("res/textures/javatwo.png");
+        texture2.Bind(0); // glActiveTexture glBindTexture
         shader2.Bind();
-        shader2.SetUniform1i("u_Texture", 1);
-        texture2.Unbind();
-
+        shader2.SetUniform1i("u_Texture", 0);
+        texture2.Unbind(); // glActiveTexture glBindTexture
+        shader2.Unbind();
 
         va.Unbind();
         vb.Unbind();
@@ -132,32 +132,19 @@ int main(void)
         ib.Unbind();
 
         Renderer renderer;
-        /*float r = 0.0f;
-        float increment = 0.05f;*/
         /* Loop until the user closes the window */
         while (!glfwWindowShouldClose(window))
         {
             /* Render here */
             renderer.Clear();
 
-            texture.Bind();
+            texture.Bind(0); 
             renderer.Draw(va, ib, shader);
             texture.Unbind();
 
-            texture2.Bind();
+            texture2.Bind(0); 
             renderer.Draw(va2, ib, shader2);
             texture2.Unbind();
-
-            /*if (r > 1.0f)
-            {
-                increment = -0.05f;
-            }
-            else if (r < -0.0f)
-            {
-                increment = 0.05f;
-            }
-            r += increment;*/
-
 
             /* Swap front and back buffers */
             glfwSwapBuffers(window);

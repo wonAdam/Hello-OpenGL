@@ -19,6 +19,10 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_opengl3.h"
+#include "imgui/imgui_impl_glfw.h"
+
 int main(void)
 {
     /* GLFW stuffs */
@@ -33,7 +37,7 @@ int main(void)
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(640, 480, "Hello OpenGL", NULL, NULL);
+    window = glfwCreateWindow(1280, 720, "Hello OpenGL", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
@@ -43,6 +47,16 @@ int main(void)
     glfwMakeContextCurrent(window);
 
     glfwSwapInterval(1);
+
+
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+
+    ImGui::StyleColorsDark();
+    const char* glsl_version = "#version 150";
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init(glsl_version);
+
 
     /* GLEW stuffs */
     GLenum err = glewInit();
@@ -58,18 +72,19 @@ int main(void)
 
     {
         // Give a data to OpenGL
+        // position coord, texture coord
         float positions[] = {
-            -0.5f,  -0.5f,  0.0f,   0.0f, // 0
-            0.5f,   -0.5f,  1.0f,   0.0f, // 1
-            0.5f,   0.5f,   1.0f,   1.0f, // 2
-            -0.5f,  0.5f,   0.0f,   1.0f // 3
+            -0.0f,  -0.0f,  0.0f,   0.0f, // 0
+            100.0f,   -0.0f,  1.0f,   0.0f, // 1
+            100.0f,   100.0f,   1.0f,   1.0f, // 2
+            -0.0f,  100.0f,   0.0f,   1.0f // 3
         };
 
         float positions2[] = {
-            -0.25f,  -0.25f,  0.0f,   0.0f, // 0
-            0.75f,   -0.25f,  1.0f,   0.0f, // 1
-            0.75f,   0.75f,   1.0f,   1.0f, // 2
-            -0.25f,  0.75f,   0.0f,   1.0f // 3
+            1280.0f - 100.0f,  720.0f - 100.0f,  0.0f,   0.0f, // 0
+            1280.0f,   720.0f - 100.0f,  1.0f,   0.0f, // 1
+            1280.0f,   720.0f,   1.0f,   1.0f, // 2
+            1280.0f - 100.0f,  720.0f,   0.0f,   1.0f // 3
         };
 
         unsigned int indices[] = {
@@ -92,18 +107,19 @@ int main(void)
         va.AddBuffer(vb, layout);
         va2.AddBuffer(vb2, layout);
 
-        glm::mat4 proj = glm::ortho(-2.0f, 2.0f, -1.5f, 1.5f, -1.0f, 1.0f);
+        //glm::mat4 proj = glm::ortho(0.0f, 1280.0f, 0.0f, 720.0f, -1.0f, 1.0f);
+        //const glm::mat4& view = glm::translate(glm::mat4(1.0f), glm::vec3(-50.0f, 0.0f, 0.0f));
+        //const glm::mat4& model = glm::translate(glm::mat4(1.0f), glm::vec3(-200.0f, -200.0f, 0.0f));
+        //glm::mat4 mvp = proj * view * model;
 
         Shader shader("res/shaders/basic.shader");
         shader.Bind();
         shader.SetUniform4f("u_Color", 1.f, 0.f, 0.f, 0.3f);
-        shader.SetUniformMat4("u_MVP", proj);
         shader.Unbind();
 
         Shader shader2("res/shaders/basic.shader");
         shader2.Bind();
         shader2.SetUniform4f("u_Color", 0.f, 0.f, 1.f, 0.3f);
-        shader2.SetUniformMat4("u_MVP", proj);
         shader2.Unbind();
 
 
@@ -131,12 +147,31 @@ int main(void)
         texture2.Unbind();
         ib.Unbind();
 
+
+        glm::vec3 view_translation(0.0f, 0.0f, 0.0f);
+        glm::vec3 model_translation(0.0f, 0.0f, 0.0f);
+
         Renderer renderer;
         /* Loop until the user closes the window */
         while (!glfwWindowShouldClose(window))
         {
             /* Render here */
             renderer.Clear();
+
+            // Start the Dear ImGui frame
+            ImGui_ImplOpenGL3_NewFrame();
+            ImGui_ImplGlfw_NewFrame();
+            ImGui::NewFrame();
+
+            glm::mat4 proj = glm::ortho(0.0f, 1280.0f, 0.0f, 720.0f, -1.0f, 1.0f);
+            const glm::mat4& view = glm::translate(glm::mat4(1.0f), view_translation);
+            const glm::mat4& model = glm::translate(glm::mat4(1.0f), model_translation);
+            glm::mat4 mvp = proj * view * model;
+
+            shader.Bind();
+            shader.SetUniformMat4("u_MVP", mvp);
+            shader2.Bind();
+            shader2.SetUniformMat4("u_MVP", mvp);
 
 
             texture.Bind(0); 
@@ -147,6 +182,24 @@ int main(void)
             renderer.Draw(va2, ib, shader2);
             texture2.Unbind();
 
+
+
+            {
+                ImGui::Begin("Debuging Panel");                          // Create a window called "Hello, world!" and append into it.
+                ImGui::SliderFloat3("Model Translate", &model_translation.x, -500.0f, 1000.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+                //ImGui::SliderFloat("Model Translate Y", &model_translation.y, -500.0f, 500.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+                ImGui::SliderFloat3("View Translate", &view_translation.x, -500.0f, 500.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+                //ImGui::SliderFloat("View Translate Y", &view_translation.y, -500.0f, 500.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+                
+                ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+                ImGui::End();
+            }
+
+
+            // Rendering
+            ImGui::Render();
+            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
             /* Swap front and back buffers */
             glfwSwapBuffers(window);
 
@@ -155,6 +208,12 @@ int main(void)
         }
 
     }
+    // Cleanup
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+
+
     glfwTerminate();
     return 0;
 }

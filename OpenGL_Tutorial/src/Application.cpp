@@ -138,6 +138,7 @@ int main(void)
             /* Render here */
             renderer.Clear();
 
+
             texture.Bind(0); 
             renderer.Draw(va, ib, shader);
             texture.Unbind();

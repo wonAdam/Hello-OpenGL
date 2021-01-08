@@ -74,17 +74,17 @@ int main(void)
         // Give a data to OpenGL
         // position coord, texture coord
         float positions[] = {
-            -0.0f,  -0.0f,  0.0f,   0.0f, // 0
-            100.0f,   -0.0f,  1.0f,   0.0f, // 1
-            100.0f,   100.0f,   1.0f,   1.0f, // 2
-            -0.0f,  100.0f,   0.0f,   1.0f // 3
+            -50.0f,  -50.0f,  0.0f,   0.0f, // 0
+            50.0f,   -50.0f,  1.0f,   0.0f, // 1
+            50.0f,   50.0f,   1.0f,   1.0f, // 2
+            -50.0f,  50.0f,   0.0f,   1.0f // 3
         };
 
         float positions2[] = {
-            1280.0f - 100.0f,  720.0f - 100.0f,  0.0f,   0.0f, // 0
-            1280.0f,   720.0f - 100.0f,  1.0f,   0.0f, // 1
-            1280.0f,   720.0f,   1.0f,   1.0f, // 2
-            1280.0f - 100.0f,  720.0f,   0.0f,   1.0f // 3
+            -50.0f,  -50.0f,  0.0f,   0.0f, // 0
+            50.0f,   -50.0f,  1.0f,   0.0f, // 1
+            50.0f,   50.0f,   1.0f,   1.0f, // 2
+            -50.0f,  50.0f,   0.0f,   1.0f // 3
         };
 
         unsigned int indices[] = {
@@ -147,9 +147,9 @@ int main(void)
         texture2.Unbind();
         ib.Unbind();
 
-
         glm::vec3 view_translation(0.0f, 0.0f, 0.0f);
-        glm::vec3 model_translation(0.0f, 0.0f, 0.0f);
+        glm::vec3 model1_translation(0.0f, 0.0f, 0.0f);
+        glm::vec3 model2_translation(0.0f, 0.0f, 0.0f);
 
         Renderer renderer;
         /* Loop until the user closes the window */
@@ -163,22 +163,24 @@ int main(void)
             ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
 
-            glm::mat4 proj = glm::ortho(0.0f, 1280.0f, 0.0f, 720.0f, -1.0f, 1.0f);
+            glm::mat4 proj = glm::ortho(-640.0f, 640.0f, -360.0f, 360.0f, -1.0f, 1.0f);
             const glm::mat4& view = glm::translate(glm::mat4(1.0f), view_translation);
-            const glm::mat4& model = glm::translate(glm::mat4(1.0f), model_translation);
-            glm::mat4 mvp = proj * view * model;
+            const glm::mat4& model1 = glm::translate(glm::mat4(1.0f), model1_translation);
+            const glm::mat4& model2 = glm::translate(glm::mat4(1.0f), model2_translation);
+            glm::mat4 mvp1 = proj * view * model1;
+            glm::mat4 mvp2 = proj * view * model2;
 
             shader.Bind();
-            shader.SetUniformMat4("u_MVP", mvp);
+            shader.SetUniformMat4("u_MVP", mvp1);
             shader2.Bind();
-            shader2.SetUniformMat4("u_MVP", mvp);
+            shader2.SetUniformMat4("u_MVP", mvp2);
 
 
-            texture.Bind(0); 
+            texture.Bind(); 
             renderer.Draw(va, ib, shader);
             texture.Unbind();
 
-            texture2.Bind(0); 
+            texture2.Bind(); 
             renderer.Draw(va2, ib, shader2);
             texture2.Unbind();
 
@@ -186,7 +188,8 @@ int main(void)
 
             {
                 ImGui::Begin("Debuging Panel");                          // Create a window called "Hello, world!" and append into it.
-                ImGui::SliderFloat3("Model Translate", &model_translation.x, -500.0f, 1000.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+                ImGui::SliderFloat3("Model1 Translate", &model1_translation.x, -500.0f, 500.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+                ImGui::SliderFloat3("Model2 Translate", &model2_translation.x, -500.0f, 500.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
                 //ImGui::SliderFloat("Model Translate Y", &model_translation.y, -500.0f, 500.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
                 ImGui::SliderFloat3("View Translate", &view_translation.x, -500.0f, 500.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
                 //ImGui::SliderFloat("View Translate Y", &view_translation.y, -500.0f, 500.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
